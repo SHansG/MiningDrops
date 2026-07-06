@@ -1,6 +1,6 @@
 name: MiningDrops
 version: 1.0.0
-main: pl.hans.miningdrops.MiningDropsPlugin
+main: pl.hansg.miningdrops.MiningDropsPlugin
 api-version: '26.1.2'
 author: HansG
 description: Auto-pickup and configurable mining bonus drops.
