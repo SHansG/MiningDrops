@@ -117,8 +117,10 @@ public final class MiningDropsPlugin extends JavaPlugin implements Listener { //
         if (!autoPickupEnabled && noCobbleEnabled) {
             Collection<ItemStack> normalDrops = block.getDrops(tool, player);
 
+            event.setDropItems(false);
+
             for (ItemStack drop : normalDrops) {
-                if (noCobbleEnabled && isBlockedNormalDrop(drop.getType())) {
+                if (isBlockedNormalDrop(drop.getType())) {
                     continue;
                 }
             }
