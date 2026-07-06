@@ -55,45 +55,91 @@ bonus-drops:
       chance: 5.0
       min-amount: 1
       max-amount: 2
+      min-exp: 0
+      max-exp: 1
 
     - material: RAW_IRON
       chance: 2.0
       min-amount: 1
       max-amount: 1
+      min-exp: 2
+      max-exp: 3
 
     - material: RAW_GOLD
       chance: 0.8
       min-amount: 1
       max-amount: 1
+      min-exp: 1
+      max-exp: 2
+
+    - material: REDSTONE
+      chance: 0.7
+      min-amount: 1
+      max-amount: 1
+      min-exp: 3
+      max-exp: 5
 
     - material: DIAMOND
       chance: 0.15
       min-amount: 1
       max-amount: 1
+      min-exp: 3
+      max-exp: 7
+
+    - material: EMERALD
+      chance: 0.15
+      min-amount: 1
+      max-amount: 1
+      min-exp: 5
+      max-exp: 10
 
   COBBLESTONE:
     - material: COAL
       chance: 3.0
       min-amount: 1
       max-amount: 1
+      min-exp: 1
+      max-exp: 1
 
     - material: RAW_IRON
       chance: 1.0
       min-amount: 1
       max-amount: 1
+      min-exp: 2
+      max-exp: 3
 
   DEEPSLATE:
     - material: RAW_IRON
       chance: 2.5
       min-amount: 1
       max-amount: 1
+      min-exp: 2
+      max-exp: 3
 
     - material: RAW_GOLD
       chance: 1.2
       min-amount: 1
       max-amount: 1
+      min-exp: 1
+      max-exp: 2
+
+    - material: REDSTONE
+      chance: 0.7
+      min-amount: 1
+      max-amount: 1
+      min-exp: 3
+      max-exp: 5
 
     - material: DIAMOND
       chance: 0.25
       min-amount: 1
       max-amount: 1
+      min-exp: 3
+      max-exp: 7
+
+    - material: EMERALD
+      chance: 0.15
+      min-amount: 1
+      max-amount: 1
+      min-exp: 5
+      max-exp: 10
