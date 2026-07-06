@@ -7,6 +7,7 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.Sound;
 // import org.bukkit.command.TabExecutor;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -129,7 +130,7 @@ public final class MiningDropsPlugin extends JavaPlugin implements Listener { //
 
 
         }
-        
+
         if (player.hasPermission("miningdrops.bonus")) {
             boolean hasSilkTouch = hasSilkTouch(tool);
             boolean respectSilkTouch = getConfig().getBoolean("settings.respect-silk-touch-for-bonus-drops", true);
@@ -237,6 +238,7 @@ public final class MiningDropsPlugin extends JavaPlugin implements Listener { //
             if (maxExp > 0) {
                 int exp = effectiveAmount*(minExp + random.nextInt((maxExp - minExp)));
                 player.giveExp(exp);
+                player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.4f, 1.0f);
             }
 
             if (autoPickupEnabled) {
