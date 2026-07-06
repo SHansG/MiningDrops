@@ -87,6 +87,7 @@ public final class MiningDropsPlugin extends JavaPlugin implements Listener { //
 
         ItemStack tool = player.getInventory().getItemInMainHand();
         boolean autoPickupEnabled = isAutoPickupEnabled(player);
+        boolean noCobbleEnabled = isNoCobbleEnabled(player);
 
         /*
          * Normal vanilla drops:
@@ -99,11 +100,27 @@ public final class MiningDropsPlugin extends JavaPlugin implements Listener { //
             event.setDropItems(false);
 
             for (ItemStack drop : normalDrops) {
-                if (isNoCobbleEnabled(player) && isBlockedNormalDrop(drop.getType())) {
+                if (noCobbleEnabled && isBlockedNormalDrop(drop.getType())) {
                     continue;
                 }
 
                 giveOrDrop(player, block, drop);
+            }
+        
+            if (getConfig().getBoolean("settings.give-exp-directly", true)) {
+                int exp = event.getExpToDrop();
+                event.setExpToDrop(0);
+                player.giveExp(exp);
+            }
+        }
+
+        if (!autoPickupEnabled && noCobbleEnabled) {
+            Collection<ItemStack> normalDrops = block.getDrops(tool, player);
+
+            for (ItemStack drop : normalDrops) {
+                if (noCobbleEnabled && isBlockedNormalDrop(drop.getType())) {
+                    continue;
+                }
             }
 
             if (getConfig().getBoolean("settings.give-exp-directly", true)) {
@@ -215,6 +232,18 @@ public final class MiningDropsPlugin extends JavaPlugin implements Listener { //
             int effectiveAmount = calculateEffectiveAmount(baseAmount, fortuneLevel);
 
             ItemStack item = new ItemStack(material, effectiveAmount);
+
+            int minExp = getInt(dropConfig, "min-exp", 0);
+            int maxExp = getInt(dropConfig, "max-exp", minExp);
+
+            if (maxExp < minExp) {
+                maxExp = minExp;
+            }
+
+            if (maxExp > 0) {
+                int exp = effectiveAmount*(minExp + random.nextInt((maxExp - minExp)));
+                player.giveExp(exp);
+            }
 
             if (autoPickupEnabled) {
                 giveOrDrop(player, block, item);
@@ -504,12 +533,12 @@ public final class MiningDropsPlugin extends JavaPlugin implements Listener { //
 
         if (args[0].equalsIgnoreCase("reload")) {
             if (!sender.hasPermission("miningdrops.admin")) {
-                sender.sendMessage(NamedTextColor.RED + "You do not have permission.");
+                sender.sendMessage(Component.text("You do not have permission.", NamedTextColor.RED));
                 return true;
             }
 
             reloadConfig();
-            sender.sendMessage(NamedTextColor.GREEN + "MiningDrops config reloaded.");
+            sender.sendMessage(Component.text("MiningDrops config reloaded.", NamedTextColor.GREEN));
             return true;
         }
 
@@ -545,12 +574,12 @@ public final class MiningDropsPlugin extends JavaPlugin implements Listener { //
 
         if (args[0].equalsIgnoreCase("auto")) {
             if (!(sender instanceof Player player)) {
-                sender.sendMessage(NamedTextColor.RED + "Only players can use this command.");
+                sender.sendMessage(Component.text("Only players can use this command.", NamedTextColor.RED));
                 return true;
             }
 
             if (!player.hasPermission("miningdrops.auto")) {
-                player.sendMessage(NamedTextColor.RED + "You do not have permission.");
+                player.sendMessage(Component.text("You do not have permission.", NamedTextColor.RED));
                 return true;
             }
 
@@ -566,9 +595,10 @@ public final class MiningDropsPlugin extends JavaPlugin implements Listener { //
 
             boolean enabled = isAutoPickupEnabled(player);
 
-            player.sendMessage(NamedTextColor.YELLOW + "Auto-pickup is now " +
-                    (enabled ? NamedTextColor.GREEN + "enabled" : NamedTextColor.RED + "disabled") +
-                    NamedTextColor.YELLOW + ".");
+            player.sendMessage(Component.text("Auto-pickup is now ", NamedTextColor.YELLOW)
+                    .append(enabled ? Component.text("enabled", NamedTextColor.GREEN) : Component.text("disabled", NamedTextColor.RED))
+                    .append(Component.text(".", NamedTextColor.YELLOW))
+                );
 
             return true;
         }
@@ -603,27 +633,28 @@ public final class MiningDropsPlugin extends JavaPlugin implements Listener { //
 
         if (args[0].equalsIgnoreCase("status")) {
             if (!(sender instanceof Player player)) {
-                sender.sendMessage(NamedTextColor.RED + "Only players can use this command.");
+                sender.sendMessage(Component.text("Only players can use this command.", NamedTextColor.RED));
                 return true;
             }
 
             boolean enabled = isAutoPickupEnabled(player);
 
-            player.sendMessage(NamedTextColor.YELLOW + "Auto-pickup: " +
-                    (enabled ? NamedTextColor.GREEN + "enabled" : NamedTextColor.RED + "disabled"));
+            player.sendMessage(Component.text("Auto-pickup: ", NamedTextColor.YELLOW)
+                    .append(enabled ? Component.text("enabled", NamedTextColor.GREEN) : Component.text("disabled", NamedTextColor.RED))
+                );
 
             return true;
         }
 
         if (args[0].equalsIgnoreCase("info")) {
             if (!sender.hasPermission("miningdrops.info")) {
-                sender.sendMessage(NamedTextColor.RED + "You do not have permission.");
+                sender.sendMessage(Component.text("You do not have permission.", NamedTextColor.RED));
                 return true;
             }
 
             if (args.length < 2) {
-                sender.sendMessage(NamedTextColor.YELLOW + "Usage: /miningdrops info <block>");
-                sender.sendMessage(NamedTextColor.GRAY + "Example: /miningdrops info STONE");
+                sender.sendMessage(Component.text("Usage: /miningdrops info <block>", NamedTextColor.YELLOW));
+                sender.sendMessage(Component.text("Example: /miningdrops info STONE", NamedTextColor.GRAY));
                 return true;
             }
 
