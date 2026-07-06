@@ -13,6 +13,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.ExperienceOrb;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -228,6 +229,12 @@ public final class MiningDropsPlugin extends JavaPlugin implements Listener { //
 
             ItemStack item = new ItemStack(material, effectiveAmount);
 
+            if (autoPickupEnabled) {
+                giveOrDrop(player, block, item);
+            } else {
+                block.getWorld().dropItemNaturally(block.getLocation(), item);
+            }
+
             int minExp = getInt(dropConfig, "min-exp", 0);
             int maxExp = getInt(dropConfig, "max-exp", minExp);
 
@@ -236,16 +243,24 @@ public final class MiningDropsPlugin extends JavaPlugin implements Listener { //
             }
 
             if (maxExp > 0) {
-                int exp = effectiveAmount*(minExp + random.nextInt((maxExp - minExp)));
-                player.giveExp(exp);
-                player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.4f, 1.0f);
+                int exp = effectiveAmount*(minExp + random.nextInt((maxExp - minExp) + 1));
+                giveBonusExp(player, block, exp, autoPickupEnabled);
             }
+        }
+    }
 
-            if (autoPickupEnabled) {
-                giveOrDrop(player, block, item);
-            } else {
-                block.getWorld().dropItemNaturally(block.getLocation(), item);
-            }
+    private void giveBonusExp(Player player, Block block, int exp, boolean autoPickupEnabled) {
+        if (exp <= 0) {
+            return;
+        }
+
+        if (autoPickupEnabled) {
+            player.giveExp(exp);
+            player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.4f, 1.0f);
+        } else {
+            block.getWorld().spawn(block.getLocation(), ExperienceOrb.class, orb -> {
+                orb.setExperience(exp);
+            });
         }
     }
 
