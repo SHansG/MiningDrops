@@ -123,21 +123,13 @@ public final class MiningDropsPlugin extends JavaPlugin implements Listener { //
                 if (isBlockedNormalDrop(drop.getType())) {
                     continue;
                 }
+
+                block.getWorld().dropItemNaturally(block.getLocation(), drop);
             }
 
-            if (getConfig().getBoolean("settings.give-exp-directly", true)) {
-                int exp = event.getExpToDrop();
-                event.setExpToDrop(0);
-                player.giveExp(exp);
-            }
+
         }
-
-        /*
-         * Bonus drops:
-         * Bonus drops are independent from auto-pickup.
-         * If auto-pickup is enabled, bonus drops go into inventory.
-         * If auto-pickup is disabled, bonus drops drop naturally on the ground.
-         */
+        
         if (player.hasPermission("miningdrops.bonus")) {
             boolean hasSilkTouch = hasSilkTouch(tool);
             boolean respectSilkTouch = getConfig().getBoolean("settings.respect-silk-touch-for-bonus-drops", true);
