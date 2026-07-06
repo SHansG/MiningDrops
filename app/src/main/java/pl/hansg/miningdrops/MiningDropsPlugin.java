@@ -1,6 +1,7 @@
 package pl.hansg.miningdrops;
 
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -33,7 +34,9 @@ import java.util.UUID;
 
 public final class MiningDropsPlugin extends JavaPlugin implements Listener { //, TabExecutor {
 
-    private final Set<UUID> toggledPlayers = new HashSet<>();
+    // private final Set<UUID> toggledPlayers = new HashSet<>();
+    private final Set<UUID> toggledAutoPickupPlayers = new HashSet<>();
+    private final Set<UUID> toggledNoCobblePlayers = new HashSet<>();
     private final Random random = new Random();
 
     private File dataFile;
@@ -43,7 +46,10 @@ public final class MiningDropsPlugin extends JavaPlugin implements Listener { //
     public void onEnable() {
         saveDefaultConfig();
         setupDataFile();
-        loadToggledPlayers();
+        // loadToggledPlayers();
+
+        loadToggledPlayers("auto");
+        loadToggledPlayers("nocobble");
 
         getServer().getPluginManager().registerEvents(this, this);
 
@@ -57,7 +63,11 @@ public final class MiningDropsPlugin extends JavaPlugin implements Listener { //
 
     @Override
     public void onDisable() {
-        saveToggledPlayers();
+        // saveToggledPlayers();
+
+        saveToggledPlayers("auto");
+        saveToggledPlayers("nocobble");
+
         getLogger().info("MiningDrops disabled.");
     }
 
@@ -89,7 +99,7 @@ public final class MiningDropsPlugin extends JavaPlugin implements Listener { //
             event.setDropItems(false);
 
             for (ItemStack drop : normalDrops) {
-                if (isBlockedNormalDrop(drop.getType())) {
+                if (isNoCobbleEnabled(player) && isBlockedNormalDrop(drop.getType())) {
                     continue;
                 }
 
@@ -126,7 +136,7 @@ public final class MiningDropsPlugin extends JavaPlugin implements Listener { //
 
     private boolean isAutoPickupEnabled(Player player) {
         boolean defaultEnabled = getConfig().getBoolean("settings.auto-pickup-default", true);
-        boolean isToggled = toggledPlayers.contains(player.getUniqueId());
+        boolean isToggled = toggledAutoPickupPlayers.contains(player.getUniqueId()); //toggledPlayers.contains(player.getUniqueId());
 
         if (defaultEnabled) {
             return !isToggled;
@@ -154,6 +164,17 @@ public final class MiningDropsPlugin extends JavaPlugin implements Listener { //
 
         List<String> blocked = getConfig().getStringList("settings.block-normal-drops.materials");
         return blocked.contains(material.name());
+    }
+
+    private boolean isNoCobbleEnabled(Player player) {
+        boolean defaultEnabled = getConfig().getBoolean("settings.no-cobble-default", true);
+        boolean isToggled = toggledNoCobblePlayers.contains(player.getUniqueId());
+
+        if (defaultEnabled) {
+            return !isToggled;
+        }
+        
+        return isToggled;
     }
 
     private void giveBonusDrops(Player player, Block block, ItemStack tool, boolean autoPickupEnabled) {
@@ -295,8 +316,8 @@ public final class MiningDropsPlugin extends JavaPlugin implements Listener { //
         Material blockMaterial = Material.matchMaterial(blockName);
 
         if (blockMaterial == null || !blockMaterial.isBlock()) {
-            sender.sendMessage(NamedTextColor.RED + "Invalid block: " + blockName);
-            sender.sendMessage(NamedTextColor.GRAY + "Example: STONE, COBBLESTONE, DEEPSLATE");
+            sender.sendMessage(Component.text("Invalid block: " + blockName, NamedTextColor.RED));
+            sender.sendMessage(Component.text("Example: STONE, COBBLESTONE, DEEPSLATE", NamedTextColor.GRAY));
             return;
         }
 
@@ -304,25 +325,34 @@ public final class MiningDropsPlugin extends JavaPlugin implements Listener { //
         String path = "bonus-drops." + blockKey;
 
         if (!getConfig().isList(path)) {
-            sender.sendMessage(NamedTextColor.YELLOW + "No bonus drops configured for " + NamedTextColor.WHITE + blockKey + NamedTextColor.YELLOW + ".");
+            sender.sendMessage(Component.text("No bonus drops configured for ", NamedTextColor.YELLOW)
+                .append(Component.text(blockKey, NamedTextColor.WHITE))
+                .append(Component.text(".", NamedTextColor.YELLOW))
+            );
             return;
         }
 
         List<Map<?, ?>> drops = getConfig().getMapList(path);
 
         if (drops.isEmpty()) {
-            sender.sendMessage(NamedTextColor.YELLOW + "No bonus drops configured for " + NamedTextColor.WHITE + blockKey + NamedTextColor.YELLOW + ".");
+            sender.sendMessage(Component.text("No bonus drops configured for ", NamedTextColor.YELLOW)
+                .append(Component.text(blockKey, NamedTextColor.WHITE))
+                .append(Component.text(".", NamedTextColor.YELLOW))
+            );
             return;
         }
 
-        sender.sendMessage(NamedTextColor.GOLD + "Bonus drops for " + NamedTextColor.WHITE + blockKey + NamedTextColor.GOLD + ":");
+        sender.sendMessage(Component.text(NamedTextColor.GOLD + "Bonus drops for ")
+            .append(Component.text(blockKey, NamedTextColor.WHITE))
+            .append(Component.text(":", NamedTextColor.GOLD))
+        );
 
         for (Map<?, ?> dropConfig : drops) {
             String materialName = String.valueOf(dropConfig.get("material"));
             Material dropMaterial = Material.matchMaterial(materialName);
 
             if (dropMaterial == null) {
-                sender.sendMessage(NamedTextColor.RED + "- Invalid material in config: " + materialName);
+                sender.sendMessage(Component.text("- Invalid material in config: " + materialName, NamedTextColor.RED));
                 continue;
             }
 
@@ -339,16 +369,16 @@ public final class MiningDropsPlugin extends JavaPlugin implements Listener { //
                     : minAmount + "-" + maxAmount;
 
             sender.sendMessage(
-                    NamedTextColor.GRAY + "- " +
-                            NamedTextColor.AQUA + dropMaterial.name() +
-                            NamedTextColor.GRAY + " | Chance: " +
-                            NamedTextColor.GREEN + baseChance + "%" +
-                            NamedTextColor.GRAY + " | Amount: " +
-                            NamedTextColor.YELLOW + amountText
+                    Component.text("- ", NamedTextColor.GRAY)
+                            .append(Component.text(dropMaterial.name(), NamedTextColor.AQUA))
+                            .append(Component.text(" | Chance: ", NamedTextColor.GRAY))
+                            .append(Component.text(baseChance + "%", NamedTextColor.GREEN))
+                            .append(Component.text(" | Amount: ", NamedTextColor.GRAY))
+                            .append(Component.text(amountText, NamedTextColor.YELLOW))
             );
         }
 
-        sender.sendMessage(NamedTextColor.DARK_GRAY + "Fortune mode: " + getFortuneMode());
+        sender.sendMessage(Component.text("Fortune mode: " + getFortuneMode(), NamedTextColor.DARK_GRAY));
     }
 
     private void setupDataFile() {
@@ -367,28 +397,82 @@ public final class MiningDropsPlugin extends JavaPlugin implements Listener { //
         dataConfig = YamlConfiguration.loadConfiguration(dataFile);
     }
 
-    private void loadToggledPlayers() {
-        toggledPlayers.clear();
+    private void loadToggledPlayers(String command) {
+        // toggledPlayers.clear();
 
-        List<String> uuids = dataConfig.getStringList("toggled-players");
+        // List<String> uuids = dataConfig.getStringList("toggled-players");
 
-        for (String uuidString : uuids) {
-            try {
-                toggledPlayers.add(UUID.fromString(uuidString));
-            } catch (IllegalArgumentException ignored) {
-                getLogger().warning("Invalid UUID in data.yml: " + uuidString);
-            }
+        // for (String uuidString : uuids) {
+        //     try {
+        //         toggledPlayers.add(UUID.fromString(uuidString));
+        //     } catch (IllegalArgumentException ignored) {
+        //         getLogger().warning("Invalid UUID in data.yml: " + uuidString);
+        //     }
+        // }
+
+        switch(command) {
+            case "nocobble":
+                toggledNoCobblePlayers.clear();
+
+                List<String> nocobble_uuids = dataConfig.getStringList("toggled-nocobble-players");
+
+                for (String uuidString : nocobble_uuids) {
+                    try {
+                        toggledNoCobblePlayers.add(UUID.fromString(uuidString));
+                    } catch (IllegalArgumentException ignored) {
+                        getLogger().warning("Invalid UUID in toggled-nocobble-players in data.yml" + uuidString);
+                    }
+                }
+
+                break;
+
+            case "auto":
+                toggledAutoPickupPlayers.clear();
+
+                List<String> auto_uuids = dataConfig.getStringList("toggled-auto-players");
+
+                for (String uuidString : auto_uuids) {
+                    try {
+                        toggledAutoPickupPlayers.add(UUID.fromString(uuidString));
+                    } catch (IllegalArgumentException ignored) {
+                        getLogger().warning("Invalid UUID in toggled-auto-players in data.yml" + uuidString);
+                    }
+                }
+
+                break;
         }
     }
 
-    private void saveToggledPlayers() {
+    private void saveToggledPlayers(String command) {
         List<String> uuids = new ArrayList<>();
 
-        for (UUID uuid : toggledPlayers) {
-            uuids.add(uuid.toString());
+        // for (UUID uuid : toggledPlayers) {
+        //     uuids.add(uuid.toString());
+        // }
+
+        switch (command) {
+            case "nocobble":
+
+                for (UUID uuid : toggledNoCobblePlayers) {
+                    uuids.add(uuid.toString());
+                }
+                
+                dataConfig.set("toggled-auto-players", uuids);
+                
+                break;
+            
+            case "auto":
+
+                for (UUID uuid : toggledAutoPickupPlayers) {
+                    uuids.add(uuid.toString());
+                }
+
+                dataConfig.set("toggled-nocobble-players", uuids);
+
+                break;
         }
 
-        dataConfig.set("toggled-players", uuids);
+        // dataConfig.set("toggled-players", uuids);
 
         try {
             dataConfig.save(dataFile);
@@ -400,10 +484,11 @@ public final class MiningDropsPlugin extends JavaPlugin implements Listener { //
 
     private void sendUsage(CommandSender sender) {
         sender.sendMessage(NamedTextColor.YELLOW + "MiningDrops commands:");
-        sender.sendMessage(NamedTextColor.GRAY + "/miningdrops toggle");
-        sender.sendMessage(NamedTextColor.GRAY + "/miningdrops status");
-        sender.sendMessage(NamedTextColor.GRAY + "/miningdrops info <block>");
-        sender.sendMessage(NamedTextColor.GRAY + "/miningdrops reload");
+        sender.sendMessage(Component.text("/miningdrops toggle", NamedTextColor.GRAY));
+        sender.sendMessage(Component.text("/miningdrops nocobble", NamedTextColor.GRAY));
+        sender.sendMessage(Component.text("/miningdrops status", NamedTextColor.GRAY));
+        sender.sendMessage(Component.text("/miningdrops info <block>", NamedTextColor.GRAY));
+        sender.sendMessage(Component.text("/miningdrops reload", NamedTextColor.GRAY));
     }
 
     @Override
@@ -428,26 +513,56 @@ public final class MiningDropsPlugin extends JavaPlugin implements Listener { //
             return true;
         }
 
-        if (args[0].equalsIgnoreCase("toggle")) {
+        // if (args[0].equalsIgnoreCase("toggle")) {
+        //     if (!(sender instanceof Player player)) {
+        //         sender.sendMessage(NamedTextColor.RED + "Only players can use this command.");
+        //         return true;
+        //     }
+
+        //     if (!player.hasPermission("miningdrops.toggle")) {
+        //         player.sendMessage(NamedTextColor.RED + "You do not have permission.");
+        //         return true;
+        //     }
+
+        //     UUID uuid = player.getUniqueId();
+
+        //     if (toggledPlayers.contains(uuid)) {
+        //         toggledPlayers.remove(uuid);
+        //     } else {
+        //         toggledPlayers.add(uuid);
+        //     }
+
+        //     saveToggledPlayers();
+
+        //     boolean enabled = isAutoPickupEnabled(player);
+
+        //     player.sendMessage(NamedTextColor.YELLOW + "Auto-pickup is now " +
+        //             (enabled ? NamedTextColor.GREEN + "enabled" : NamedTextColor.RED + "disabled") +
+        //             NamedTextColor.YELLOW + ".");
+
+        //     return true;
+        // }
+
+        if (args[0].equalsIgnoreCase("auto")) {
             if (!(sender instanceof Player player)) {
                 sender.sendMessage(NamedTextColor.RED + "Only players can use this command.");
                 return true;
             }
 
-            if (!player.hasPermission("miningdrops.toggle")) {
+            if (!player.hasPermission("miningdrops.auto")) {
                 player.sendMessage(NamedTextColor.RED + "You do not have permission.");
                 return true;
             }
 
             UUID uuid = player.getUniqueId();
 
-            if (toggledPlayers.contains(uuid)) {
-                toggledPlayers.remove(uuid);
+            if (toggledAutoPickupPlayers.contains(uuid)) {
+                toggledAutoPickupPlayers.remove(uuid);
             } else {
-                toggledPlayers.add(uuid);
+                toggledAutoPickupPlayers.add(uuid);
             }
 
-            saveToggledPlayers();
+            saveToggledPlayers("auto");
 
             boolean enabled = isAutoPickupEnabled(player);
 
@@ -455,6 +570,34 @@ public final class MiningDropsPlugin extends JavaPlugin implements Listener { //
                     (enabled ? NamedTextColor.GREEN + "enabled" : NamedTextColor.RED + "disabled") +
                     NamedTextColor.YELLOW + ".");
 
+            return true;
+        }
+
+        if (args[0].equalsIgnoreCase("nocobble")) {
+            if (!(sender instanceof Player player)) {
+                sender.sendMessage(Component.text("Only players can use this command.", NamedTextColor.RED));
+                return true;
+            }
+
+            if (!player.hasPermission("miningdrops.nocobble")) {
+                player.sendMessage(Component.text("You do not have permission.", NamedTextColor.RED));
+                return true;
+            }
+            UUID uuid = player.getUniqueId();
+
+            if(toggledNoCobblePlayers.contains(uuid)) {
+                toggledNoCobblePlayers.remove(uuid);
+            } else {
+                toggledNoCobblePlayers.add(uuid);
+            }
+
+            saveToggledPlayers("nocobble");
+
+            boolean enabled = isNoCobbleEnabled(player);
+
+            player.sendMessage(Component.text("NoCobble is now ", NamedTextColor.YELLOW)
+                .append(enabled ? Component.text("enabled", NamedTextColor.GREEN) : Component.text("disabled", NamedTextColor.RED))
+            );
             return true;
         }
 
@@ -501,7 +644,9 @@ public final class MiningDropsPlugin extends JavaPlugin implements Listener { //
         }
 
         if (args.length == 1) {
-            suggestions.add("toggle");
+            // suggestions.add("toggle");
+            suggestions.add("auto");
+            suggestions.add("nocobble");
             suggestions.add("status");
             suggestions.add("info");
 
