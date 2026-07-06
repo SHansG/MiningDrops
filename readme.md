@@ -11,7 +11,8 @@ MiningDrops is a custom Paper plugin that combines global auto-pickup with confi
 - Optional blocking of unwanted normal drops, such as `COBBLESTONE`, `ANDESITE`, `DIORITE`, and `GRANITE`.
 - Full inventory fallback: leftover items are dropped naturally on the ground.
 - Direct XP pickup when auto-pickup is enabled.
-- Player toggle command for auto-pickup.
+- Player auto command for auto-pickup.
+- Player nocobble command for toggling on/off pickup of cobblestone and other blocked materials.
 - Info command to display configured bonus drops for a block.
 - LuckPerms-compatible permissions.
 
@@ -26,7 +27,8 @@ MiningDrops is a custom Paper plugin that combines global auto-pickup with confi
 | Command | Description |
 |---|---|
 | `/miningdrops status` | Shows whether auto-pickup is enabled for the player. |
-| `/miningdrops toggle` | Toggles auto-pickup for the player. |
+| `/miningdrops auto` | Toggles auto-pickup for the player. |
+| `/miningdrops nocobble` | Toggles on/off pickup of cobblestone and other blocked materials in config for the player. |
 | `/miningdrops info <block>` | Shows configured bonus drops for a block, for example `/miningdrops info STONE`. |
 | `/miningdrops reload` | Reloads the plugin configuration. |
 
@@ -42,7 +44,8 @@ Aliases:
 | Permission | Description | Default |
 |---|---|---|
 | `miningdrops.use` | Allows auto-pickup for broken blocks. | true |
-| `miningdrops.toggle` | Allows use of `/miningdrops toggle`. | true |
+| `miningdrops.auto` | Allows use of `/miningdrops auto`. | true |
+| `miningdrops.nocobble` | Allows use of `/miningdrops nocobble`. | true |
 | `miningdrops.info` | Allows use of `/miningdrops info <block>`. | true |
 | `miningdrops.bonus` | Allows receiving configured bonus drops. | true |
 | `miningdrops.admin` | Allows use of `/miningdrops reload`. | op |
@@ -51,7 +54,8 @@ Example LuckPerms setup:
 
 ```text
 /lp group default permission set miningdrops.use true
-/lp group default permission set miningdrops.toggle true
+/lp group default permission set miningdrops.auto true
+/lp group default permission set miningdrops.nocobble true
 /lp group default permission set miningdrops.info true
 /lp group default permission set miningdrops.bonus true
 /lp group admin permission set miningdrops.admin true
@@ -109,5 +113,6 @@ fortune:
 - The plugin respects cancelled `BlockBreakEvent` events, so it should not give drops in protected areas if another protection plugin cancels the break event.
 - When auto-pickup is enabled, vanilla drops and bonus drops are placed directly into the player inventory.
 - When auto-pickup is disabled, vanilla drops behave normally and bonus drops fall naturally on the ground.
+- When nocobble is enabled, cobblestone and other blocked materials specified in config.yml will not be picked to inventory.
 - If the inventory is full, leftover items are dropped naturally on the ground.
 - If Silk Touch protection is enabled, bonus drops are not given while mining with Silk Touch.
