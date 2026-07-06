@@ -1,0 +1,98 @@
+settings:
+  auto-pickup-default: true
+  drop-leftovers-on-ground: true
+  give-exp-directly: true
+
+  # If true, bonus drops will not be given when player mines with Silk Touch.
+  # Normal Silk Touch drops are still auto-picked up.
+  respect-silk-touch-for-bonus-drops: true
+
+  # Optional normal drop filter.
+  # Example: when mining STONE, vanilla Minecraft drops COBBLESTONE.
+  # If COBBLESTONE is listed here, the player will not receive the normal cobblestone.
+  block-normal-drops:
+    enabled: true
+    materials:
+      - COBBLESTONE
+      - COBBLED_DEEPSLATE
+      - ANDESITE
+      - DIORITE
+      - GRANITE
+
+worlds:
+  # If this list is empty, all worlds are enabled.
+  enabled:
+    - world
+    - world_nether
+    - world_the_end
+
+fortune:
+  # Options:
+  # NONE   = Fortune does not affect bonus drops
+  # CHANCE = Fortune increases bonus drop chance
+  # AMOUNT = Fortune increases bonus drop amount
+  # BOTH   = Fortune increases both chance and amount
+  mode: AMOUNT
+
+  # Used when mode is CHANCE or BOTH.
+  # Example: base chance 2.0%, Fortune III, multiplier 0.25
+  # Effective chance = 2.0 * (1 + 3 * 0.25) = 3.5%
+  chance-multiplier-per-level: 0.25
+
+  # Used when mode is AMOUNT or BOTH.
+  # Example: base amount 1, Fortune III, multiplier 0.35
+  # Effective amount = round(1 * (1 + 3 * 0.35)) = 2
+  amount-multiplier-per-level: 0.35
+
+  # Safety caps.
+  max-effective-chance: 100.0
+  max-effective-amount: 64
+
+bonus-drops:
+  STONE:
+    - material: COAL
+      chance: 5.0
+      min-amount: 1
+      max-amount: 2
+
+    - material: RAW_IRON
+      chance: 2.0
+      min-amount: 1
+      max-amount: 1
+
+    - material: RAW_GOLD
+      chance: 0.8
+      min-amount: 1
+      max-amount: 1
+
+    - material: DIAMOND
+      chance: 0.15
+      min-amount: 1
+      max-amount: 1
+
+  COBBLESTONE:
+    - material: COAL
+      chance: 3.0
+      min-amount: 1
+      max-amount: 1
+
+    - material: RAW_IRON
+      chance: 1.0
+      min-amount: 1
+      max-amount: 1
+
+  DEEPSLATE:
+    - material: RAW_IRON
+      chance: 2.5
+      min-amount: 1
+      max-amount: 1
+
+    - material: RAW_GOLD
+      chance: 1.2
+      min-amount: 1
+      max-amount: 1
+
+    - material: DIAMOND
+      chance: 0.25
+      min-amount: 1
+      max-amount: 1
