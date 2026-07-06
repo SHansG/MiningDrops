@@ -1,7 +1,8 @@
 settings:
-  auto-pickup-default: true
+  auto-pickup-default: false
+  no-cobble-default: false
   drop-leftovers-on-ground: true
-  give-exp-directly: true
+  give-exp-directly: false
 
   # If true, bonus drops will not be given when player mines with Silk Touch.
   # Normal Silk Touch drops are still auto-picked up.
@@ -21,10 +22,10 @@ settings:
 
 worlds:
   # If this list is empty, all worlds are enabled.
-  enabled:
-    - world
-    - world_nether
-    - world_the_end
+  enabled: []
+    # - world
+    # - world_nether
+    # - world_the_end
 
 fortune:
   # Options:

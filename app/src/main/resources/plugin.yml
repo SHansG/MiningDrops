@@ -1,5 +1,5 @@
 name: MiningDrops
-version: 1.0.0
+version: 1.0.1
 main: pl.hansg.miningdrops.MiningDropsPlugin
 api-version: '26.1.2'
 author: HansG
@@ -8,7 +8,7 @@ description: Auto-pickup and configurable mining bonus drops.
 commands:
   miningdrops:
     description: Main MiningDrops command
-    usage: /miningdrops <toggle|reload|status|info>
+    usage: /miningdrops <auto|nocobble|reload|status|info>
     aliases: [mdrops, ap]
 
 permissions:
@@ -16,9 +16,13 @@ permissions:
     description: Allows auto-pickup for broken blocks
     default: true
 
-  miningdrops.toggle:
+  miningdrops.auto:
     description: Allows player to toggle auto-pickup
-    default: true
+    default: false
+
+  miningdrops.nocobble:
+    description: Allows player to toggle cobblestone and other blocked materials pickup
+    default: false
 
   miningdrops.info:
     description: Allows player to check configured block bonus drops
