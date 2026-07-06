@@ -21,46 +21,6 @@ MiningDrops is a custom Paper plugin that combines global auto-pickup with confi
 - Java 25.
 - Minecraft/Paper API version matching the server version shown by `/version`.
 
-## Installation
-
-1. Build the plugin using Gradle:
-
-```bash
-./gradlew build
-```
-
-On Windows PowerShell:
-
-```powershell
-.\gradlew.bat build
-```
-
-2. Copy the compiled file from:
-
-```text
-build/libs/MiningDrops-1.0.0.jar
-```
-
-to your server plugins folder:
-
-```text
-server/plugins/
-```
-
-3. Restart the server.
-
-4. Edit the generated configuration file:
-
-```text
-plugins/MiningDrops/config.yml
-```
-
-5. Reload the plugin configuration in game or from console:
-
-```text
-/miningdrops reload
-```
-
 ## Commands
 
 | Command | Description |
