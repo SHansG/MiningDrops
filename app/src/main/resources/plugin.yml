@@ -1,5 +1,5 @@
 name: MiningDrops
-version: 1.0.1
+version: 1.0.2
 main: pl.hansg.miningdrops.MiningDropsPlugin
 api-version: '26.1.2'
 author: HansG
