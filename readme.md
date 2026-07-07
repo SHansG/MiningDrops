@@ -74,16 +74,22 @@ bonus-drops:
       chance: 5.0
       min-amount: 1
       max-amount: 2
+      min-exp: 0
+      max-exp: 1
 
     - material: RAW_IRON
       chance: 2.0
       min-amount: 1
       max-amount: 1
+      min-exp: 2
+      max-exp: 3
 
     - material: DIAMOND
       chance: 0.15
       min-amount: 1
       max-amount: 1
+      min-exp: 3
+      max-exp: 7
 ```
 
 In this example, breaking `STONE` can give extra coal, raw iron, or diamond according to the configured chances.
