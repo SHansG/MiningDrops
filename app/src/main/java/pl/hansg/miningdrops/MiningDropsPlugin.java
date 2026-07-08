@@ -3,6 +3,7 @@ package pl.hansg.miningdrops;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
@@ -20,6 +21,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
@@ -41,6 +43,8 @@ public final class MiningDropsPlugin extends JavaPlugin implements Listener { //
     private final Set<UUID> toggledNoCobblePlayers = new HashSet<>();
     private final Random random = new Random();
 
+    private NamespacedKey syntheticBlockBreakKey;
+
     private File dataFile;
     private FileConfiguration dataConfig;
 
@@ -52,6 +56,8 @@ public final class MiningDropsPlugin extends JavaPlugin implements Listener { //
 
         loadToggledPlayers("auto");
         loadToggledPlayers("nocobble");
+
+        syntheticBlockBreakKey = new NamespacedKey("custommechanics", "synthetic_block_break");
 
         getServer().getPluginManager().registerEvents(this, this);
 
@@ -80,6 +86,10 @@ public final class MiningDropsPlugin extends JavaPlugin implements Listener { //
         World world = block.getWorld();
 
         if (!player.hasPermission("miningdrops.use")) {
+            return;
+        }
+
+        if (isSyntheticBlockBreak(player)) {
             return;
         }
 
@@ -140,6 +150,14 @@ public final class MiningDropsPlugin extends JavaPlugin implements Listener { //
                 giveBonusDrops(player, block, tool, autoPickupEnabled);
             }
         }
+    }
+
+    private boolean isSyntheticBlockBreak(Player player) {
+        if (syntheticBlockBreakKey == null) {
+            return false;
+        }
+
+        return player.getPersistentDataContainer().has(syntheticBlockBreakKey, PersistentDataType.BYTE);
     }
 
     private boolean isWorldEnabled(String worldName) {
