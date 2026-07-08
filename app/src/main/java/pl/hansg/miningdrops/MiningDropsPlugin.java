@@ -43,7 +43,7 @@ public final class MiningDropsPlugin extends JavaPlugin implements Listener { //
     private final Set<UUID> toggledNoCobblePlayers = new HashSet<>();
     private final Random random = new Random();
 
-    private NamespacedKey syntheticBlockBreakKey;
+    private NamespacedKey skipCustomBlockBreakHandlersKey;
 
     private File dataFile;
     private FileConfiguration dataConfig;
@@ -57,7 +57,7 @@ public final class MiningDropsPlugin extends JavaPlugin implements Listener { //
         loadToggledPlayers("auto");
         loadToggledPlayers("nocobble");
 
-        syntheticBlockBreakKey = new NamespacedKey("custommechanics", "synthetic_block_break");
+        skipCustomBlockBreakHandlersKey = new NamespacedKey("custommechanics", "skip_custom_block_break_handlers");
 
         getServer().getPluginManager().registerEvents(this, this);
 
@@ -89,7 +89,7 @@ public final class MiningDropsPlugin extends JavaPlugin implements Listener { //
             return;
         }
 
-        if (isSyntheticBlockBreak(player)) {
+        if (shouldSkipCustomBlockBreakHandlers(player)) {
             return;
         }
 
@@ -152,12 +152,12 @@ public final class MiningDropsPlugin extends JavaPlugin implements Listener { //
         }
     }
 
-    private boolean isSyntheticBlockBreak(Player player) {
-        if (syntheticBlockBreakKey == null) {
+    private boolean shouldSkipCustomBlockBreakHandlers(Player player) {
+        if (skipCustomBlockBreakHandlersKey == null) {
             return false;
         }
 
-        return player.getPersistentDataContainer().has(syntheticBlockBreakKey, PersistentDataType.BYTE);
+        return player.getPersistentDataContainer().has(skipCustomBlockBreakHandlersKey, PersistentDataType.BYTE);
     }
 
     private boolean isWorldEnabled(String worldName) {
