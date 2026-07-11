@@ -138,8 +138,6 @@ public final class MiningDropsPlugin extends JavaPlugin implements Listener { //
 
                 block.getWorld().dropItemNaturally(block.getLocation(), drop);
             }
-
-
         }
 
         if (player.hasPermission("miningdrops.bonus")) {
@@ -515,7 +513,7 @@ public final class MiningDropsPlugin extends JavaPlugin implements Listener { //
                     uuids.add(uuid.toString());
                 }
                 
-                dataConfig.set("toggled-auto-players", uuids);
+                dataConfig.set("toggled-nocobble-players", uuids);
                 
                 break;
             
@@ -525,7 +523,7 @@ public final class MiningDropsPlugin extends JavaPlugin implements Listener { //
                     uuids.add(uuid.toString());
                 }
 
-                dataConfig.set("toggled-nocobble-players", uuids);
+                dataConfig.set("toggled-auto-players", uuids);
 
                 break;
         }
